@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  purchases Purchase[]
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  title       String
+  artist      String
+  genre       String
+  bpm         Int?
+  duration    Int
+  price       Int
+  coverUrl    String
+  previewUrl  String
+  fullUrl     String
+  description String?
+  tags        String   @default("[]")
+  mood        String?
+  musicKey    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchases Purchase[]
+}
+
+model Purchase {
+  id               String   @id @default(cuid())
+  userId           String
+  trackId          String
+  stripeSessionId  String?
+  stripePaymentId  String?
+  amount           Int
+  createdAt        DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  track Track @relation(fields: [trackId], references: [id])
+
+  @@unique([userId, trackId])
+}
